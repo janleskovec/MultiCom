@@ -1,0 +1,7 @@
+.vscode/
+
+build/
+
+
+# local config
+wifi_config.h
