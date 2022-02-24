@@ -5,7 +5,6 @@
 #include <lwip/udp.h>
 #include <functional>
 
-typedef void(* MultiComReplyFn) (void *, u16_t);
 
 
 /*typedef std::function<void(MultiComPacket& packet)> MultiComCallback;
@@ -19,18 +18,9 @@ class MultiComEndpoint {
     MultiComCallback callback;
 };*/
 
-class MultiComMsg {
 
-  public:
-    MultiComMsg(void *n_data, u16_t n_len, MultiComReplyFn *n_reply);
-    void *data;
-    u16_t len;
-
-    // callback
-    MultiComReplyFn *reply;
-};
-
-typedef void(* MultiComNewDataFn) (MultiComMsg *);
+typedef std::function<void(void *data, u16_t len)> MultiComReplyFn;
+typedef std::function<void(void *data, u16_t len, MultiComReplyFn reply)> MultiComNewDataFn;
 
 class MultiComChannel {
 
@@ -40,7 +30,7 @@ class MultiComChannel {
     bool isRunning;
 
     // is set by MultiCom
-    MultiComNewDataFn *_callback;
+    MultiComNewDataFn _callback;
 };
 
 class MultiCom {
@@ -54,7 +44,7 @@ class MultiCom {
     //MultiComChannel *channelBle;
   
   private:
-    void _onNewMsg(MultiComMsg *msg);
+    void _onNewMsg(void *data, u16_t len, MultiComReplyFn reply);
 
 };
 

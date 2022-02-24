@@ -6,11 +6,6 @@
 
 #include "MultiCom.h"
 
-MultiComMsg::MultiComMsg(void *n_data, u16_t n_len, MultiComReplyFn *n_reply){
-  data = n_data;
-  len = n_len;
-  reply = n_reply;
-}
 
 bool MultiComChannel::start() {
   Serial.println("start generic server");
@@ -25,11 +20,14 @@ void MultiComChannel::stop() {
 
 
 MultiCom::MultiCom(MultiComChannel *udp) {
+  using namespace std::placeholders;
+
+  MultiComNewDataFn _callback = std::bind(&MultiCom::_onNewMsg, this, _1, _2, _3);
+
   channelUdp = udp;
-  // TODO: fix
-  channelUdp->_callback = std::bind1st(&_onNewMsg, this);
+  channelUdp->_callback = _callback;
   //channelBle = ble;
-  //channelBle->_callback = std::bind1st(_onNewMsg, this);
+  //channelBle->_callback = _callback;
 }
 
 bool MultiCom::startAll() {
@@ -46,14 +44,14 @@ bool MultiCom::startAll() {
   return success;
 }
 
-void MultiCom::_onNewMsg(MultiComMsg *msg){
+void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   Serial.print("_onNewMsg: ");
-  for (int i = 0; i < msg->len; i++) {
-    Serial.printf("%4d ", ((char*) msg->data)[i]);
+  for (int i = 0; i < len; i++) {
+    Serial.printf("%4d ", ((char*) data)[i]);
   }
   Serial.print("\n           ");
-  for (int i = 0; i < msg->len; i++) {
-    Serial.printf("   %c ", ((char*) msg->data)[i]);
+  for (int i = 0; i < len; i++) {
+    Serial.printf("   %c ", ((char*) data)[i]);
   }
   Serial.println();
 }

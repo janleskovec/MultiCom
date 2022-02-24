@@ -7,7 +7,7 @@
 
 #include "MultiCom.h"
 
-class MultiComUdpReplyContext;
+//class MultiComUdpReplyContext;
 
 class MultiComUdp : public MultiComChannel {
 
@@ -23,10 +23,10 @@ class MultiComUdp : public MultiComChannel {
     static void _udp_receive_callback( void* arg, struct udp_pcb* upcb, struct pbuf* p, const ip_addr_t* addr, u16_t port );
     void _udp_receive_callback( struct udp_pcb* upcb, struct pbuf* p, const ip_addr_t* addr, u16_t port );
 
-    //void _send(struct _MultiComUdp_sendContext context, void *data, u16_t len);
+    void _send(const ip_addr_t * ip, u16_t _port, void *data, u16_t len);
 };
 
-class MultiComUdpReplyContext {
+/*class MultiComUdpReplyContext {
 
   public:
     MultiComUdpReplyContext(
@@ -41,6 +41,6 @@ class MultiComUdpReplyContext {
     MultiComUdp *_channel;
     const ip_addr_t * _ip;
     u16_t _port;
-};
+};*/
 
 #endif

@@ -66,30 +66,28 @@ void MultiComUdp::_udp_receive_callback(
   Serial.printf(".%d", ( addr4 & 0xff000000 ) >> 24);
   Serial.print("\n");
 
-  // TODO: fix
-  MultiComUdpReplyContext rplCtx(this, addr, port);
+  using namespace std::placeholders;
 
-  /*MultiComMsg *msg = new MultiComMsg(
-    p->payload,
-    p->len,
-    std::bind1st(rplCtx._send, rplCtx)
-  );*/
+  MultiComReplyFn _reply = std::bind(&MultiComUdp::_send, this, addr, port, _1, _2);
 
-  //if (_callback != NULL) (*_callback)(msg);
+  if (_callback != NULL)
+    _callback(
+      p->payload,
+      p->len,
+      _reply
+    );
   
-  // free msg for callback
-  //delete packet;
   // free receive pbuf
   pbuf_free(p);
 }
 
-MultiComUdpReplyContext::MultiComUdpReplyContext( MultiComUdp *channel, const ip_addr_t * ip, u16_t port){
+/*MultiComUdpReplyContext::MultiComUdpReplyContext( MultiComUdp *channel, const ip_addr_t * ip, u16_t port){
   _channel = channel;
   _ip = ip;
   _port = port;
-}
+}*/
 
-void MultiComUdpReplyContext::_send(void *data, u16_t len) {
+void MultiComUdp::_send(const ip_addr_t * ip, u16_t _port, void *data, u16_t len) {
   // TODO: impmenent (https://www.nongnu.org/lwip/2_0_x/group__udp__raw.html#gaa0e135a5958f1f0cc83cbeb609e18743)
   Serial.println("Sending udp packet");
 }
