@@ -1,18 +1,18 @@
 #######################################
-# Syntax Coloring Map For UdpApi
+# Syntax Coloring Map For MultiCom
 #######################################
 
 #######################################
 # Library (KEYWORD3)
 #######################################
 
-UdpApi	KEYWORD3
+MultiCom	KEYWORD3
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-UdpApi	KEYWORD1
+MultiCom	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

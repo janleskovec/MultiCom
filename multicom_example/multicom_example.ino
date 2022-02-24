@@ -3,9 +3,12 @@
 
 #include "wifi_config.h"
 
-#include <UdpApi.h>
+#include <MultiCom.h>
+#include <MultiComUdp.h>
 
-UdpApi api(5021);
+MultiCom api(
+    (MultiComChannel *) new MultiComUdp(5021)
+);
 
 void setup() {
     Serial.begin(115200);
@@ -24,7 +27,11 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    api.start();
+    if (api.startAll()) {
+        Serial.println("Started MultiCom");
+    } else {
+        Serial.println("Failed starting MultiCom");
+    }
 }
 
 void loop() {
