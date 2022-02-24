@@ -54,5 +54,7 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
     Serial.printf("   %c ", ((char*) data)[i]);
   }
   Serial.println();
+
+  reply(data, len);
 }
 

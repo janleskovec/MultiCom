@@ -6,7 +6,6 @@
 #include <functional>
 
 
-
 /*typedef std::function<void(MultiComPacket& packet)> MultiComCallback;
 class MultiComEndpoint {
 

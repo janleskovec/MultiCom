@@ -41,9 +41,6 @@ void MultiComUdp::stop() {
   udp_remove(_pcb);
 }
 
-
-// inspitarion: https://github.com/me-no-dev/ESPAsyncUDP/blob/master/src/AsyncUDP.cpp
-
 // binder function to gain access to class instance
 void MultiComUdp::_udp_receive_callback( void* arg, struct udp_pcb* upcb, struct pbuf* p, const ip_addr_t* addr, u16_t port ) {
   reinterpret_cast<MultiComUdp*>(arg)->_udp_receive_callback(upcb, p, (ip_addr_t *)addr, port);
@@ -81,13 +78,18 @@ void MultiComUdp::_udp_receive_callback(
   pbuf_free(p);
 }
 
-/*MultiComUdpReplyContext::MultiComUdpReplyContext( MultiComUdp *channel, const ip_addr_t * ip, u16_t port){
-  _channel = channel;
-  _ip = ip;
-  _port = port;
-}*/
 
-void MultiComUdp::_send(const ip_addr_t * ip, u16_t _port, void *data, u16_t len) {
-  // TODO: impmenent (https://www.nongnu.org/lwip/2_0_x/group__udp__raw.html#gaa0e135a5958f1f0cc83cbeb609e18743)
+void MultiComUdp::_send(const ip_addr_t * ip, u16_t port, void *data, u16_t len) {
   Serial.println("Sending udp packet");
+
+  // generate packet buffer
+  struct pbuf *p;
+  p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
+  memcpy (p->payload, data, len);
+
+  // send, check err
+  if (udp_sendto(this->_pcb, p, ip, port)) Serial.println("Err sending udp packet");
+  
+  // free buff
+  pbuf_free(p);
 }
