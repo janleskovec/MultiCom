@@ -27,7 +27,7 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
         if (len - parsed_bytes >= 8) {
             // session id
             if (type == MultiComPacket::packet_type::get  ||
-                type == MultiComPacket::packet_type::set  ||
+                type == MultiComPacket::packet_type::send ||
                 type == MultiComPacket::packet_type::post ||
                 type == MultiComPacket::packet_type::ack
                 ) {
@@ -37,7 +37,7 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
                 }
             
             // nonce
-            if (type == MultiComPacket::packet_type::set ||
+            if (type == MultiComPacket::packet_type::send ||
                 type == MultiComPacket::packet_type::post
                 ) {
                     nonce = ntohl(*((u32_t *) data));

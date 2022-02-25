@@ -46,45 +46,46 @@ bool MultiCom::startAll() {
   return success;
 }
 
-void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
-  /*Serial.print("_onNewMsg: ");
-  for (int i = 0; i < len; i++) {
-    Serial.printf("%4d ", ((char*) data)[i]);
-  }
-  Serial.print("\n           ");
-  for (int i = 0; i < len; i++) {
-    Serial.printf("   %c ", ((char*) data)[i]);
-  }
-  Serial.println();*/
+void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply){
 
-  // TODO: parse packet
+  switch (packet.type)
+  {
+  case MultiComPacket::packet_type::get:
+    reply((void*)"get", strlen("get"));
+    break;
+  
+  case MultiComPacket::packet_type::send:
+    reply((void*)"send", strlen("send"));
+    break;
+  
+  case MultiComPacket::packet_type::post:
+    reply((void*)"post", strlen("post"));
+    break;
+  
+  }
+
+  // TODO: for testing only, remove!
+  if (tmp_callback != NULL) tmp_callback(packet, reply);
+}
+
+void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   MultiComPacket packet = MultiComPacket(data, len);
 
   switch (packet.type)
   {
   case MultiComPacket::packet_type::discovery:
-    Serial.println("discovery");
     reply((void*)"discovery", strlen("discovery"));
     break;
   
   case MultiComPacket::packet_type::get:
-    Serial.println("get");
-    reply((void*)"get", strlen("get"));
-    break;
-  
-  case MultiComPacket::packet_type::set:
-    Serial.println("set");
-    reply((void*)"set", strlen("set"));
-    break;
-  
+  case MultiComPacket::packet_type::send:
   case MultiComPacket::packet_type::post:
-    Serial.println("post");
-    reply((void*)"post", strlen("post"));
+    reply((void*)"router", strlen("router"));
+    _endpointRouter(packet, reply);
     break;
   
   // ack should not be received
   case MultiComPacket::packet_type::ack:
-    Serial.println("ack");
     reply((void*)"ack", strlen("ack"));
     break;
   
@@ -93,8 +94,5 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
     reply((void*)"unknown", strlen("unknown"));
     break;
   }
-
-  // echo
-  //reply(data, len);
 }
 

@@ -27,6 +27,10 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
+    api.tmp_callback = [](MultiComPacket packet, MultiComReplyFn reply){
+        Serial.println("User packet callback called!");
+    };
+
     if (api.startAll()) {
         Serial.println("Started MultiCom");
     } else {

@@ -5,6 +5,8 @@
 #include <lwip/udp.h>
 #include <functional>
 
+#include "MultiComPacket.h"
+
 
 /*
 *   session struct
@@ -14,18 +16,6 @@ typedef struct MultiComSession {
   u32_t nonce;
   u32_t last_ack_nonce;
 } MultiComSession;
-
-
-/*typedef std::function<void(MultiComPacket& packet)> MultiComCallback;
-class MultiComEndpoint {
-
-  public:
-    MultiComEndpoint(char *endpoint, MultiComCallback callback);
-
-  private:
-    char *_endpoint;
-    MultiComCallback callback;
-};*/
 
 typedef std::function<void(void *data, u16_t len)> MultiComReplyFn;
 typedef std::function<void(void *data, u16_t len, MultiComReplyFn reply)> MultiComNewDataFn;
@@ -41,6 +31,8 @@ class MultiComChannel {
     MultiComNewDataFn _callback;
 };
 
+typedef std::function<void(MultiComPacket packet, MultiComReplyFn reply)> MultiComEndpointCallback;
+
 class MultiCom {
 
   public:
@@ -48,10 +40,14 @@ class MultiCom {
     
     bool startAll();
 
+    // TODO: for testing only, remove!
+    MultiComEndpointCallback tmp_callback;
+
     MultiComChannel *channelUdp;
     //MultiComChannel *channelBle;
   
   private:
+    void _endpointRouter(MultiComPacket packet, MultiComReplyFn reply);
     void _onNewMsg(void *data, u16_t len, MultiComReplyFn reply);
 
 };

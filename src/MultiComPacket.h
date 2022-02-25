@@ -15,7 +15,7 @@ class MultiComPacket {
     enum class packet_type : u8_t {
       discovery  = 0, // discovery packet (only returns identifier msg)
       get        = 1, // does not use nonce (callback called again on re-transmit)
-      set        = 2, // uses nonce (ensures callback only gets called once + order)
+      send       = 2, // uses nonce (ensures callback only gets called once + order)
       post       = 3, // uses nonce + sends ack (ensures callback only gets called once + order)
       ack        = 4, // used to reply after post (contains session id and latest nonce)
     };
