@@ -6,6 +6,16 @@
 #include <functional>
 
 
+/*
+*   session struct
+*/
+typedef struct MultiComSession {
+  u32_t id;
+  u32_t nonce;
+  u32_t last_ack_nonce;
+} MultiComSession;
+
+
 /*typedef std::function<void(MultiComPacket& packet)> MultiComCallback;
 class MultiComEndpoint {
 
@@ -16,7 +26,6 @@ class MultiComEndpoint {
     char *_endpoint;
     MultiComCallback callback;
 };*/
-
 
 typedef std::function<void(void *data, u16_t len)> MultiComReplyFn;
 typedef std::function<void(void *data, u16_t len, MultiComReplyFn reply)> MultiComNewDataFn;
