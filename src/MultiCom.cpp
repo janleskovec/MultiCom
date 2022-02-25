@@ -48,24 +48,48 @@ bool MultiCom::startAll() {
 
 void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply){
 
+  MultiCom::session session = _getSession(packet.session_id);
+
   switch (packet.type)
   {
   case MultiComPacket::packet_type::get:
     reply((void*)"get", strlen("get"));
+    // reset nonce, just in case as "packet_type::get" should ignore it
+    packet.nonce = 0;
     break;
   
   case MultiComPacket::packet_type::send:
     reply((void*)"send", strlen("send"));
+    if (packet.nonce > session.nonce) {
+      // TODO: for testing only, remove!
+      if (tmp_callback != NULL) tmp_callback(packet, reply);
+    }
     break;
   
   case MultiComPacket::packet_type::post:
     reply((void*)"post", strlen("post"));
+    if (packet.nonce > session.last_ack_nonce) {
+      // TODO: for testing only, remove!
+      if (tmp_callback != NULL) tmp_callback(packet, reply);
+    }
+
+    //TODO: test
+    // send ack
+    char *ack_data = (char*) malloc(sizeof(u8_t) + 2*sizeof(u32_t));
+    char *tmp = ack_data;
+    *tmp = (char) MultiComPacket::packet_type::ack;
+    tmp += sizeof(u8_t);
+    *((u32_t*)tmp) = session.id;
+    tmp += sizeof(u32_t);
+    *((u32_t*)tmp) = session.nonce;
+    tmp += sizeof(u32_t);
+    reply(ack_data, sizeof(u8_t) + 2*sizeof(u32_t));
+
     break;
-  
   }
 
-  // TODO: for testing only, remove!
-  if (tmp_callback != NULL) tmp_callback(packet, reply);
+  // increase nonce
+  if (packet.nonce > session.nonce) session.nonce = packet.nonce;
 }
 
 void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
@@ -94,5 +118,18 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
     reply((void*)"unknown", strlen("unknown"));
     break;
   }
+}
+
+// TODO: test
+MultiCom::session MultiCom::_getSession(u32_t id) {
+  for (MultiCom::session s : session_list) {
+      if (s.id == id) return s;
+  }
+
+  // not found -> add new
+  session_list.push_back({id, 0, 0});
+  
+  // when an overflow occurs, remove oldest
+  if (session_list.size() > MAX_CONCURRENT_SESSIONS) session_list.pop_front();
 }
 

@@ -4,22 +4,19 @@
 #include <Arduino.h>
 #include <lwip/udp.h>
 #include <functional>
+#include <list>
 
 #include "MultiComPacket.h"
 
-
-/*
-*   session struct
-*/
-typedef struct MultiComSession {
-  u32_t id;
-  u32_t nonce;
-  u32_t last_ack_nonce;
-} MultiComSession;
-
+// reply callback (backend facing)
 typedef std::function<void(void *data, u16_t len)> MultiComReplyFn;
+// wrapper callback (backend -> wrapper)
 typedef std::function<void(void *data, u16_t len, MultiComReplyFn reply)> MultiComNewDataFn;
 
+
+/*
+*   comm channels (backends)
+*/
 class MultiComChannel {
 
   public:
@@ -31,8 +28,15 @@ class MultiComChannel {
     MultiComNewDataFn _callback;
 };
 
+
+// user-facing-callback
 typedef std::function<void(MultiComPacket packet, MultiComReplyFn reply)> MultiComEndpointCallback;
 
+
+/*
+*   main wrapper
+*/
+#define MAX_CONCURRENT_SESSIONS 16
 class MultiCom {
 
   public:
@@ -49,6 +53,16 @@ class MultiCom {
   private:
     void _endpointRouter(MultiComPacket packet, MultiComReplyFn reply);
     void _onNewMsg(void *data, u16_t len, MultiComReplyFn reply);
+
+    typedef struct session {
+      u32_t id;
+      u32_t nonce;
+      u32_t last_ack_nonce;
+    } session;
+
+    std::list<session> session_list;
+
+    session _getSession(u32_t id);
 
 };
 
