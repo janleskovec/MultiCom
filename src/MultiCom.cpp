@@ -82,6 +82,7 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
     reply((void*)"post", strlen("post"));
     break;
   
+  // ack should not be received
   case MultiComPacket::packet_type::ack:
     Serial.println("ack");
     reply((void*)"ack", strlen("ack"));
