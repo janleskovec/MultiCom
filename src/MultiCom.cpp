@@ -30,6 +30,9 @@ MultiCom::MultiCom(MultiComChannel *udp) {
   channelUdp->_callback = _callback;
   //channelBle = ble;
   //channelBle->_callback = _callback;
+
+  // init sessions list
+  //_session_list = {};
 }
 
 bool MultiCom::startAll() {
@@ -46,9 +49,11 @@ bool MultiCom::startAll() {
   return success;
 }
 
-void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply){
+void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
 
-  MultiCom::session session = _getSession(packet.session_id);
+  MultiCom::session *session = _getSession(packet.session_id);
+
+  Serial.printf("packet_nonce=%u, session_nonce=%u\n", packet.nonce, session->nonce);
 
   switch (packet.type)
   {
@@ -60,36 +65,32 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply){
   
   case MultiComPacket::packet_type::send:
     reply((void*)"send", strlen("send"));
-    if (packet.nonce > session.nonce) {
-      // TODO: for testing only, remove!
-      if (tmp_callback != NULL) tmp_callback(packet, reply);
-    }
-    break;
-  
-  case MultiComPacket::packet_type::post:
-    reply((void*)"post", strlen("post"));
-    if (packet.nonce > session.last_ack_nonce) {
+    if (packet.nonce > session->nonce) {
       // TODO: for testing only, remove!
       if (tmp_callback != NULL) tmp_callback(packet, reply);
     }
 
+    break;
+  
+  case MultiComPacket::packet_type::post:
+    reply((void*)"post", strlen("post"));
+    if (packet.nonce > session->last_ack_nonce) {
+      // TODO: for testing only, remove!
+      if (tmp_callback != NULL) tmp_callback(packet, reply);
+    }
+    
     //TODO: test
     // send ack
-    char *ack_data = (char*) malloc(sizeof(u8_t) + 2*sizeof(u32_t));
-    char *tmp = ack_data;
-    *tmp = (char) MultiComPacket::packet_type::ack;
-    tmp += sizeof(u8_t);
-    *((u32_t*)tmp) = session.id;
-    tmp += sizeof(u32_t);
-    *((u32_t*)tmp) = session.nonce;
-    tmp += sizeof(u32_t);
-    reply(ack_data, sizeof(u8_t) + 2*sizeof(u32_t));
+    MultiComPacket ackPacket = MultiComPacket::genAckPacket(packet.session_id, packet.nonce);
+    reply(ackPacket._raw_data, ackPacket._raw_len);
+    free(ackPacket._raw_data); // free buff
+    session->last_ack_nonce = session->nonce;
 
     break;
   }
 
   // increase nonce
-  if (packet.nonce > session.nonce) session.nonce = packet.nonce;
+    if (packet.nonce > session->nonce) session->nonce = packet.nonce;
 }
 
 void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
@@ -121,15 +122,24 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
 }
 
 // TODO: test
-MultiCom::session MultiCom::_getSession(u32_t id) {
-  for (MultiCom::session s : session_list) {
-      if (s.id == id) return s;
+MultiCom::session *MultiCom::_getSession(u32_t id) {
+
+  for (MultiCom::session *s : _session_list) {
+    if (s->id == id) return s;
   }
 
   // not found -> add new
-  session_list.push_back({id, 0, 0});
+  session *new_session = (session *) malloc(sizeof(session));
+  *new_session = {id, 0, 0};
+  _session_list.push_back(new_session);
   
   // when an overflow occurs, remove oldest
-  if (session_list.size() > MAX_CONCURRENT_SESSIONS) session_list.pop_front();
+  if (_session_list.size() > MAX_CONCURRENT_SESSIONS) {
+    session *removed = _session_list.front();
+    _session_list.pop_front();
+    free(removed);
+  }
+
+  return new_session;
 }
 

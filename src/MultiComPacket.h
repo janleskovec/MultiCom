@@ -28,13 +28,14 @@ class MultiComPacket {
     u32_t session_id;
     u32_t nonce;
 
-    // points to _in_data, where non-header data starts
+    // points to _raw_data, where non-header data starts
     void *user_data;
     u16_t user_len;
 
-  private:
-    void *_in_data;
-    u16_t _in_len;
+    static MultiComPacket genAckPacket(u32_t session_id, u32_t nonce);
+
+    void *_raw_data;
+    u16_t _raw_len;
 };
 
 #endif

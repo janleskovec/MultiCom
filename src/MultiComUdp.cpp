@@ -84,7 +84,6 @@ void MultiComUdp::_udp_receive_callback(
 
 
 void MultiComUdp::_send(const ip_addr_t * ip, u16_t port, void *data, u16_t len) {
-  Serial.println("Sending udp packet");
 
   // limit len
   if (len > 1460) len = 1460;

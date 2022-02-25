@@ -60,9 +60,9 @@ class MultiCom {
       u32_t last_ack_nonce;
     } session;
 
-    std::list<session> session_list;
+    std::list<session*> _session_list;
 
-    session _getSession(u32_t id);
+    session *_getSession(u32_t id);
 
 };
 

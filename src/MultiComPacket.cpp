@@ -4,12 +4,13 @@
 #include <lwip/pbuf.h>
 #include <functional>
 
+#include "MultiCom.h"
 #include "MultiComPacket.h"
 
 // read received packet
 MultiComPacket::MultiComPacket(void *data, u16_t len) {
-    _in_data = data;
-    _in_len = len;
+    _raw_data = data;
+    _raw_len = len;
 
     session_id = 0;
     nonce = 0;
@@ -52,3 +53,17 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
     user_len = len - parsed_bytes;
 }
 
+
+MultiComPacket MultiComPacket::genAckPacket( u32_t session_id, u32_t nonce) {
+    char *ack_data = (char*) malloc(sizeof(u8_t) + 2*sizeof(u32_t));
+    
+    char *tmp = ack_data;
+    *tmp = (char) MultiComPacket::packet_type::ack;
+    tmp += sizeof(u8_t);
+    *((u32_t*)tmp) = htonl(session_id);
+    tmp += sizeof(u32_t);
+    *((u32_t*)tmp) = htonl(nonce);
+    tmp += sizeof(u32_t);
+    
+    return MultiComPacket(ack_data, (static_cast<char*>(ack_data) - static_cast<char*>(tmp)));
+}

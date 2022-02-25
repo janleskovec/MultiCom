@@ -28,7 +28,7 @@ void setup() {
     Serial.println(WiFi.localIP());
 
     api.tmp_callback = [](MultiComPacket packet, MultiComReplyFn reply){
-        Serial.println("User packet callback called!");
+        Serial.println("-------------> User packet callback called!");
     };
 
     if (api.startAll()) {
