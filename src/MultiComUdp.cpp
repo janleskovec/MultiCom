@@ -54,8 +54,8 @@ void MultiComUdp::_udp_receive_callback(
                 u16_t port )            // Sender port 
 {
 
+  // TODO: remove or comment-out
   uint32_t addr4 = addr->u_addr.ip4.addr;
-
   Serial.printf("Received %d bytes from: ", p->tot_len);
   Serial.printf("%d",  ( addr4 & 0x000000ff ) >>  0);
   Serial.printf(".%d", ( addr4 & 0x0000ff00 ) >>  8);

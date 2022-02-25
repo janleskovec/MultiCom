@@ -14,10 +14,12 @@ class MultiComPacket {
   public:
     enum class packet_type : u8_t {
       discovery  = 0, // discovery packet (only returns identifier msg)
-      get        = 1, // does not use nonce (callback called again on re-transmit)
-      send       = 2, // uses nonce (ensures callback only gets called once + order)
-      post       = 3, // uses nonce + sends ack (ensures callback only gets called once + order)
-      ack        = 4, // used to reply after post (contains session id and latest nonce)
+      ping       = 1, // echo
+      get        = 2, // does not use nonce (callback called again on re-transmit)
+      get_reply  = 3, // reply msg after get
+      send       = 4, // uses nonce (ensures callback only gets called once + order)
+      post       = 5, // uses nonce + sends ack (ensures callback only gets called once + order)
+      ack        = 6, // used to reply after post (contains session id and latest nonce)
     };
 
     MultiComPacket(void *data, u16_t len);

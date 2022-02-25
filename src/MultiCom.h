@@ -31,18 +31,22 @@ class MultiComChannel {
 
 // user-facing-callback
 typedef std::function<void(MultiComPacket packet, MultiComReplyFn reply)> MultiComEndpointCallback;
+typedef std::function<char*(void)> MultiComDiscoveryCallback;
 
 
 /*
 *   main wrapper
 */
 #define MAX_CONCURRENT_SESSIONS 16
+#define DEFAULT_DISCOVERY_RESPONSE "MultiCom discovery"
 class MultiCom {
 
   public:
     MultiCom(MultiComChannel *udp);
     
     bool startAll();
+
+    MultiComDiscoveryCallback discoveryCallback;
 
     // TODO: for testing only, remove!
     MultiComEndpointCallback tmp_callback;

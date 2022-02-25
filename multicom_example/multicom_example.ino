@@ -6,6 +6,7 @@
 #include <MultiCom.h>
 #include <MultiComUdp.h>
 
+
 MultiCom api(
     (MultiComChannel *) new MultiComUdp(5021)
 );
@@ -27,9 +28,14 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    api.tmp_callback = [](MultiComPacket packet, MultiComReplyFn reply){
+    api.tmp_callback = [](MultiComPacket packet, MultiComReplyFn reply) {
         Serial.println("-------------> User packet callback called!");
     };
+
+    //api.discoveryCallback = [](void) -> char* {
+    //    Serial.println("-------------> User discovery callback called!");
+    //    return "Hello!";
+    //};
 
     if (api.startAll()) {
         Serial.println("Started MultiCom");

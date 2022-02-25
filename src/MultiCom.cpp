@@ -90,7 +90,7 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
   }
 
   // increase nonce
-    if (packet.nonce > session->nonce) session->nonce = packet.nonce;
+  if (packet.nonce > session->nonce) session->nonce = packet.nonce;
 }
 
 void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
@@ -99,7 +99,17 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   switch (packet.type)
   {
   case MultiComPacket::packet_type::discovery:
-    reply((void*)"discovery", strlen("discovery"));
+    if (discoveryCallback != NULL) {
+      char *disc_msg = discoveryCallback();
+      reply((void*)disc_msg, strlen(disc_msg));
+    } else {
+      // default response
+      reply((void*)DEFAULT_DISCOVERY_RESPONSE, strlen(DEFAULT_DISCOVERY_RESPONSE));
+    }
+    break;
+  
+  case MultiComPacket::packet_type::ping:
+    reply(data, len); // echo
     break;
   
   case MultiComPacket::packet_type::get:
@@ -111,7 +121,7 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   
   // ack should not be received
   case MultiComPacket::packet_type::ack:
-    reply((void*)"ack", strlen("ack"));
+  case MultiComPacket::packet_type::get_reply:
     break;
   
   default:
