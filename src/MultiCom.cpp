@@ -20,8 +20,8 @@ void MultiComChannel::stop() {
 
 
 MultiCom::MultiCom(MultiComChannel *udp) {
-  using namespace std::placeholders;
 
+  using namespace std::placeholders;
   MultiComNewDataFn _callback = std::bind(&MultiCom::_onNewMsg, this, _1, _2, _3);
 
   channelUdp = udp;

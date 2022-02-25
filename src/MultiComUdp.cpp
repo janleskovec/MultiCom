@@ -56,7 +56,7 @@ void MultiComUdp::_udp_receive_callback(
 
   uint32_t addr4 = addr->u_addr.ip4.addr;
 
-  Serial.printf("Received %d bytes from: ", p->len);
+  Serial.printf("Received %d bytes from: ", p->tot_len);
   Serial.printf("%d",  ( addr4 & 0x000000ff ) >>  0);
   Serial.printf(".%d", ( addr4 & 0x0000ff00 ) >>  8);
   Serial.printf(".%d", ( addr4 & 0x00ff0000 ) >> 16);
@@ -64,23 +64,30 @@ void MultiComUdp::_udp_receive_callback(
   Serial.print("\n");
 
   using namespace std::placeholders;
+  MultiComReplyFn _reply = std::bind(&MultiComUdp::_send, this, addr, ntohs(port), _1, _2);
 
-  MultiComReplyFn _reply = std::bind(&MultiComUdp::_send, this, addr, port, _1, _2);
-
-  if (_callback != NULL)
-    _callback(
-      p->payload,
-      p->len,
-      _reply
-    );
-  
-  // free receive pbuf
-  pbuf_free(p);
+  // iteration through packet chain
+  while(p != NULL) {
+    if (_callback != NULL)
+      _callback(
+        p->payload,
+        p->len,
+        _reply
+      );
+    
+    pbuf * tmp = p;
+    p = p->next;
+    tmp->next = NULL;
+    pbuf_free(tmp);
+  }
 }
 
 
 void MultiComUdp::_send(const ip_addr_t * ip, u16_t port, void *data, u16_t len) {
   Serial.println("Sending udp packet");
+
+  // limit len
+  if (len > 1460) len = 1460;
 
   // generate packet buffer
   struct pbuf *p;
@@ -88,7 +95,7 @@ void MultiComUdp::_send(const ip_addr_t * ip, u16_t port, void *data, u16_t len)
   memcpy (p->payload, data, len);
 
   // send, check err
-  if (udp_sendto(this->_pcb, p, ip, port)) Serial.println("Err sending udp packet");
+  if (udp_sendto(this->_pcb, p, ip, htons(port))) Serial.println("Err sending udp packet");
   
   // free buff
   pbuf_free(p);
