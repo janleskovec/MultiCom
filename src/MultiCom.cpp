@@ -74,7 +74,7 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
   
   case MultiComPacket::packet_type::post:
     reply((void*)"post", strlen("post"));
-    if (packet.nonce > session->last_ack_nonce) {
+    if (packet.nonce > session->nonce) {
       // TODO: for testing only, remove!
       if (tmp_callback != NULL) tmp_callback(packet, reply);
     }
@@ -84,7 +84,6 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
     MultiComPacket ackPacket = MultiComPacket::genAckPacket(packet.session_id, packet.nonce);
     reply(ackPacket._raw_data, ackPacket._raw_len);
     free(ackPacket._raw_data); // free buff
-    session->last_ack_nonce = session->nonce;
 
     break;
   }
@@ -140,7 +139,7 @@ MultiCom::session *MultiCom::_getSession(u32_t id) {
 
   // not found -> add new
   session *new_session = (session *) malloc(sizeof(session));
-  *new_session = {id, 0, 0};
+  *new_session = {id, 0};
   _session_list.push_back(new_session);
   
   // when an overflow occurs, remove oldest

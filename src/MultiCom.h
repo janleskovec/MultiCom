@@ -61,7 +61,6 @@ class MultiCom {
     typedef struct session {
       u32_t id;
       u32_t nonce;
-      u32_t last_ack_nonce;
     } session;
 
     std::list<session*> _session_list;
