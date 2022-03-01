@@ -13,7 +13,7 @@ class MultiComPacket {
 
   public:
     enum class packet_type : u8_t {
-      discovery  = 0, // discovery packet (only returns identifier msg)
+      discovery  = 0, // discovery/reply packet (only returns identifier msg)
       ping       = 1, // echo
       get        = 2, // does not use nonce (callback called again on re-transmit)
       get_reply  = 3, // reply msg after get
@@ -35,6 +35,7 @@ class MultiComPacket {
     u16_t user_len;
 
     static MultiComPacket genAckPacket(u32_t session_id, u32_t nonce);
+    static MultiComPacket genDiscoveryReply(char *msg);
 
     void *_raw_data;
     u16_t _raw_len;

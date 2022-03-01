@@ -100,10 +100,14 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   case MultiComPacket::packet_type::discovery:
     if (discoveryCallback != NULL) {
       char *disc_msg = discoveryCallback();
-      reply((void*)disc_msg, strlen(disc_msg));
+      MultiComPacket rply_packet = MultiComPacket::genDiscoveryReply(disc_msg);
+      reply(rply_packet._raw_data, rply_packet._raw_len);
+      free(rply_packet._raw_data); // free buff
     } else {
       // default response
-      reply((void*)DEFAULT_DISCOVERY_RESPONSE, strlen(DEFAULT_DISCOVERY_RESPONSE));
+      MultiComPacket rply_packet = MultiComPacket::genDiscoveryReply(DEFAULT_DISCOVERY_RESPONSE);
+      reply(rply_packet._raw_data, rply_packet._raw_len);
+      free(rply_packet._raw_data); // free buff
     }
     break;
   

@@ -67,3 +67,14 @@ MultiComPacket MultiComPacket::genAckPacket( u32_t session_id, u32_t nonce) {
     
     return MultiComPacket(ack_data, (static_cast<char*>(ack_data) - static_cast<char*>(tmp)));
 }
+
+MultiComPacket MultiComPacket::genDiscoveryReply(char *msg) {
+    char *msg_data = (char*) malloc(sizeof(u8_t) + strlen(msg)+1);
+    
+    char *tmp = msg_data;
+    *tmp = (char) MultiComPacket::packet_type::ack;
+    tmp += sizeof(u8_t);
+    strcpy((char*) tmp, msg);
+    
+    return MultiComPacket(msg_data, (static_cast<char*>(msg_data) - static_cast<char*>(tmp)));
+}
