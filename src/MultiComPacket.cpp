@@ -72,7 +72,7 @@ MultiComPacket MultiComPacket::genDiscoveryReply(char *msg) {
     char *msg_data = (char*) malloc(sizeof(u8_t) + strlen(msg)+1);
     
     char *tmp = msg_data;
-    *tmp = (char) MultiComPacket::packet_type::ack;
+    *tmp = (char) MultiComPacket::packet_type::discovery;
     tmp += sizeof(u8_t);
     strcpy((char*) tmp, msg);
     
