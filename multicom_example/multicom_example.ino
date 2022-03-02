@@ -32,11 +32,6 @@ void setup() {
         Serial.println("-------------> User packet callback called!");
     };
 
-    api.discoveryCallback = [](void) -> char* {
-        Serial.println("-------------> User discovery callback called!");
-        return "Hello!";
-    };
-
     if (api.startAll()) {
         Serial.println("Started MultiCom");
     } else {

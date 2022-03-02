@@ -38,15 +38,12 @@ typedef std::function<char*(void)> MultiComDiscoveryCallback;
 *   main wrapper
 */
 #define MAX_CONCURRENT_SESSIONS 16
-#define DEFAULT_DISCOVERY_RESPONSE "MultiCom discovery"
 class MultiCom {
 
   public:
     MultiCom(MultiComChannel *udp);
     
     bool startAll();
-
-    MultiComDiscoveryCallback discoveryCallback;
 
     // TODO: for testing only, remove!
     MultiComEndpointCallback tmp_callback;
@@ -55,6 +52,10 @@ class MultiCom {
     //MultiComChannel *channelBle;
   
   private:
+    char _fw_id[64] = "example";
+    char _dev_id[64] = "changeme";
+    uint32_t _api_ver = 0;
+
     void _endpointRouter(MultiComPacket packet, MultiComReplyFn reply);
     void _onNewMsg(void *data, u16_t len, MultiComReplyFn reply);
 

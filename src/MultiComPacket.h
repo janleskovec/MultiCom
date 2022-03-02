@@ -36,7 +36,7 @@ class MultiComPacket {
     u16_t user_len;
 
     static MultiComPacket genAckPacket(u32_t session_id, u32_t nonce);
-    static MultiComPacket genDiscoveryReply(char *msg);
+    static MultiComPacket genDiscoveryReply(char *fw_id, char *dev_id, u32_t api_ver);
 
     void *_raw_data;
     u16_t _raw_len;

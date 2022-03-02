@@ -98,17 +98,10 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   switch (packet.type)
   {
   case MultiComPacket::packet_type::discovery:
-    if (discoveryCallback != NULL) {
-      char *disc_msg = discoveryCallback();
-      MultiComPacket rply_packet = MultiComPacket::genDiscoveryReply(disc_msg);
-      reply(rply_packet._raw_data, rply_packet._raw_len);
-      free(rply_packet._raw_data); // free buff
-    } else {
-      // default response
-      MultiComPacket rply_packet = MultiComPacket::genDiscoveryReply(DEFAULT_DISCOVERY_RESPONSE);
-      reply(rply_packet._raw_data, rply_packet._raw_len);
-      free(rply_packet._raw_data); // free buff
-    }
+    // generate response
+    {MultiComPacket rply_packet = MultiComPacket::genDiscoveryReply(_fw_id, _dev_id, _api_ver);
+    reply(rply_packet._raw_data, rply_packet._raw_len);
+    free(//TODO)}
     break;
   
   case MultiComPacket::packet_type::ping:

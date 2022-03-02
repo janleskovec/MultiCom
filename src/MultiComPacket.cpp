@@ -68,14 +68,20 @@ MultiComPacket MultiComPacket::genAckPacket( u32_t session_id, u32_t nonce) {
     return MultiComPacket(ack_data, (static_cast<char*>(ack_data) - static_cast<char*>(tmp)));
 }
 
-MultiComPacket MultiComPacket::genDiscoveryReply(char *msg) {
-    u16_t len = sizeof(u8_t) + strlen(msg)+1;
-    char *msg_data = (char*) malloc(len);
+// \0<fw_id>\0<dev_id>\0<api_ver_int>
+MultiComPacket MultiComPacket::genDiscoveryReply(char *fw_id, char *dev_id, u32_t api_ver) {
+    char *msg_data = (char *) malloc(strlen(dev_id)+1 + strlen(fw_id)+1 + sizeof(u8_t) + sizeof(u32_t));
+
+    Serial.println(fw_id);
+    Serial.println(dev_id);
     
     char *tmp = msg_data;
     *tmp = (char) MultiComPacket::packet_type::discovery_helo;
     tmp += sizeof(u8_t);
-    strcpy((char*) tmp, msg);
+    //strcpy(tmp, fw_id);
+    tmp += strlen(tmp)+1;
+    //strcpy(tmp, dev_id);
+    //tmp += strlen(tmp)+1;
     
-    return MultiComPacket(msg_data, len);
+    return MultiComPacket(&msg_data, 192);
 }
