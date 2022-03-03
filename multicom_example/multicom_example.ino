@@ -12,6 +12,18 @@ MultiCom api(
 );
 
 void setup() {
+    /*
+    *   Set firmware id, device id and api version
+    */
+    String mac_str = WiFi.macAddress();
+    mac_str.toLowerCase();
+    mac_str.replace(':', '_');
+    api.setDiscoveryResponse(
+        "multicom_example",   // firmware identifier
+        mac_str.c_str(),      // device id
+        0                     // api version
+    );
+
     Serial.begin(115200);
 
     Serial.print("Connecting");

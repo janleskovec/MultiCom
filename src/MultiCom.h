@@ -50,11 +50,12 @@ class MultiCom {
 
     MultiComChannel *channelUdp;
     //MultiComChannel *channelBle;
+
+    void setDiscoveryResponse(const char *fwId, const char *devId, u32_t ver);
   
   private:
-    char _fw_id[64] = "example";
-    char _dev_id[64] = "changeme";
-    uint32_t _api_ver = 0;
+    void *_discovery_response;
+    u16_t _discovery_response_len;
 
     void _endpointRouter(MultiComPacket packet, MultiComReplyFn reply);
     void _onNewMsg(void *data, u16_t len, MultiComReplyFn reply);

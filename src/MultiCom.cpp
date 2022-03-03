@@ -99,9 +99,8 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   {
   case MultiComPacket::packet_type::discovery:
     // generate response
-    {MultiComPacket rply_packet = MultiComPacket::genDiscoveryReply(_fw_id, _dev_id, _api_ver);
-    reply(rply_packet._raw_data, rply_packet._raw_len);
-    free(//TODO)}
+    if (_discovery_response != NULL)
+      reply(_discovery_response, _discovery_response_len);
     break;
   
   case MultiComPacket::packet_type::ping:
@@ -147,5 +146,12 @@ MultiCom::session *MultiCom::_getSession(u32_t id) {
   }
 
   return new_session;
+}
+
+void MultiCom::setDiscoveryResponse(const char *fwId, const char *devId, u32_t ver) {
+  if (_discovery_response != NULL) free(_discovery_response);
+  MultiComPacket packet = MultiComPacket::genDiscoveryReply(fwId, devId, ver);
+  _discovery_response = packet._raw_data;
+  _discovery_response_len = packet._raw_len;
 }
 
