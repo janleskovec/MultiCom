@@ -16,7 +16,7 @@ class MultiComPacket {
       discovery       = 0, // discovery packet (only returns identifier msg)
       discovery_helo  = 1, // discovery reply packet
       ping            = 2, // echo
-      get             = 3, // does not use nonce (callback called again on re-transmit)
+      get             = 3, // uses random nonce (does not prevent dupicate callbacks)
       get_reply       = 4, // reply msg after get
       send            = 5, // uses nonce (ensures callback only gets called once + order)
       post            = 6, // uses nonce + sends ack (ensures callback only gets called once + order)
@@ -37,6 +37,7 @@ class MultiComPacket {
 
     static MultiComPacket genAckPacket(u32_t session_id, u32_t nonce);
     static MultiComPacket genDiscoveryReply(const char *fw_id, const char *dev_id, u32_t api_ver);
+    static MultiComPacket genGetReply(MultiComPacket request, void *data, u16_t len);
 
     void *_raw_data;
     u16_t _raw_len;

@@ -40,8 +40,17 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    api.tmp_callback = [](MultiComPacket packet, MultiComReplyFn reply) {
-        Serial.println("-------------> User packet callback called!");
+    api.tmp_get_callback = [](MultiComPacket packet, MultiComReplyFn reply) {
+        Serial.println("-------------> User get packet callback called!");
+        reply((void*)"yes", 3);
+    };
+
+    api.tmp_send_callback = [](MultiComPacket packet) {
+        Serial.println("-------------> User send packet callback called!");
+    };
+
+    api.tmp_post_callback = [](MultiComPacket packet) {
+        Serial.println("-------------> User post packet callback called!");
     };
 
     if (api.startAll()) {

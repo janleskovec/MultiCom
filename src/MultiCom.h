@@ -29,9 +29,10 @@ class MultiComChannel {
 };
 
 
-// user-facing-callback
-typedef std::function<void(MultiComPacket packet, MultiComReplyFn reply)> MultiComEndpointCallback;
-typedef std::function<char*(void)> MultiComDiscoveryCallback;
+// user-facing-callbacks
+typedef std::function<void(MultiComPacket packet, MultiComReplyFn reply)> MultiComGetCallback;
+typedef std::function<void(MultiComPacket packet)> MultiComSendCallback;
+typedef std::function<void(MultiComPacket packet)> MultiComPostCallback;
 
 
 /*
@@ -46,7 +47,9 @@ class MultiCom {
     bool startAll();
 
     // TODO: for testing only, remove!
-    MultiComEndpointCallback tmp_callback;
+    MultiComGetCallback tmp_get_callback;
+    MultiComSendCallback tmp_send_callback;
+    MultiComPostCallback tmp_post_callback;
 
     MultiComChannel *channelUdp;
     //MultiComChannel *channelBle;

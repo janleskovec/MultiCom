@@ -58,25 +58,29 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
   switch (packet.type)
   {
   case MultiComPacket::packet_type::get:
-    reply((void*)"get", strlen("get"));
-    // reset nonce, just in case as "packet_type::get" should ignore it
-    packet.nonce = 0;
+    if (tmp_get_callback != NULL)
+      tmp_get_callback(packet, [packet, reply](void *data, u16_t len){
+        MultiComPacket replyPacket = MultiComPacket::genGetReply(packet, data, len);
+        reply(replyPacket._raw_data, replyPacket._raw_len);
+        free(replyPacket._raw_data); // free buff
+      });
     break;
   
   case MultiComPacket::packet_type::send:
-    reply((void*)"send", strlen("send"));
     if (packet.nonce > session->nonce) {
       // TODO: for testing only, remove!
-      if (tmp_callback != NULL) tmp_callback(packet, reply);
+      if (tmp_send_callback != NULL) tmp_send_callback(packet);
     }
+
+    // increase nonce
+    if (packet.nonce > session->nonce) session->nonce = packet.nonce;
 
     break;
   
   case MultiComPacket::packet_type::post:
-    reply((void*)"post", strlen("post"));
     if (packet.nonce > session->nonce) {
       // TODO: for testing only, remove!
-      if (tmp_callback != NULL) tmp_callback(packet, reply);
+      if (tmp_post_callback != NULL) tmp_post_callback(packet);
     }
     
     //TODO: test
@@ -85,11 +89,11 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
     reply(ackPacket._raw_data, ackPacket._raw_len);
     free(ackPacket._raw_data); // free buff
 
+    // increase nonce
+    if (packet.nonce > session->nonce) session->nonce = packet.nonce;
+
     break;
   }
-
-  // increase nonce
-  if (packet.nonce > session->nonce) session->nonce = packet.nonce;
 }
 
 void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
@@ -110,7 +114,6 @@ void MultiCom::_onNewMsg(void *data, u16_t len, MultiComReplyFn reply){
   case MultiComPacket::packet_type::get:
   case MultiComPacket::packet_type::send:
   case MultiComPacket::packet_type::post:
-    reply((void*)"router", strlen("router"));
     _endpointRouter(packet, reply);
     break;
   

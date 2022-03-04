@@ -27,10 +27,8 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
         // check len (2x u32_t)
         if (len - parsed_bytes >= 8) {
             // session id
-            if (type == MultiComPacket::packet_type::get  ||
-                type == MultiComPacket::packet_type::send ||
-                type == MultiComPacket::packet_type::post ||
-                type == MultiComPacket::packet_type::ack
+            if (type != MultiComPacket::packet_type::discovery      &&
+                type != MultiComPacket::packet_type::discovery_helo
                 ) {
                     session_id = ntohl(*((u32_t *) data));
                     data = static_cast<char*>(data) +  sizeof(u32_t);
@@ -38,8 +36,8 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
                 }
             
             // nonce
-            if (type == MultiComPacket::packet_type::send ||
-                type == MultiComPacket::packet_type::post
+            if (type != MultiComPacket::packet_type::discovery      &&
+                type != MultiComPacket::packet_type::discovery_helo
                 ) {
                     nonce = ntohl(*((u32_t *) data));
                     data = static_cast<char*>(data) +  sizeof(u32_t);
@@ -90,4 +88,21 @@ MultiComPacket MultiComPacket::genDiscoveryReply(const char *fw_id, const char *
     tmp += strlen(tmp)+1;
     
     return MultiComPacket(msg_data, len);
+}
+
+MultiComPacket MultiComPacket::genGetReply(MultiComPacket request, void *data, u16_t len) {
+    u16_t tot_len = sizeof(u8_t) + (2*sizeof(u32_t)) + len;
+    char *msg_data = (char*) malloc(tot_len);
+    
+    char *tmp = msg_data;
+    *tmp = (char) MultiComPacket::packet_type::get_reply;
+    tmp += sizeof(u8_t);
+    *((u32_t*)tmp) = htonl(request.session_id);
+    tmp += sizeof(u32_t);
+    *((u32_t*)tmp) = htonl(request.nonce);
+    tmp += sizeof(u32_t);
+    memcpy(tmp, data, len);
+    tmp += len;
+
+    return MultiComPacket(msg_data, tot_len);
 }
