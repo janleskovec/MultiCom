@@ -18,8 +18,8 @@ class MultiComPacket {
       ping            = 2, // echo
       get             = 3, // uses random nonce (does not prevent dupicate callbacks)
       get_reply       = 4, // reply msg after get
-      send            = 5, // uses nonce (ensures callback only gets called once + order)
-      post            = 6, // uses nonce + sends ack (ensures callback only gets called once + order)
+      send            = 5, // uses sequential nonce (ensures callback only gets called once + order)
+      post            = 6, // uses sequential nonce + sends ack (ensures callback only gets called once + order)
       ack             = 7, // used to reply after post (contains session id and latest nonce)
     };
 
