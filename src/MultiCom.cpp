@@ -55,6 +55,8 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
 
   Serial.printf("packet_nonce=%u, session_nonce=%u\n", packet.nonce, session->nonce);
 
+  bool not_found = false;
+
   switch (packet.type)
   {
   case MultiComPacket::packet_type::get:
@@ -66,6 +68,7 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
           reply(replyPacket._raw_data, replyPacket._raw_len);
           free(replyPacket._raw_data); // free buff
         });
+      else not_found = true;
     }
     break;
   
@@ -77,6 +80,7 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
       {
         MultiComSendCallback send_callback = _getSendCallback(packet.endpoint);
         if (send_callback != NULL) send_callback(packet);
+        else not_found = true;
       }
     }
 
@@ -89,6 +93,7 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
 
       MultiComPostCallback post_callback = _getPostCallback(packet.endpoint);
       if (post_callback != NULL) post_callback(packet);
+      else not_found = true;
     }
     
     //TODO: test
@@ -98,6 +103,13 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
     free(ackPacket._raw_data); // free buff
 
     break;
+  }
+
+  if (not_found) {
+    // endpoint not found
+    MultiComPacket notFoundPacket = MultiComPacket::genNotFoundReply(packet);
+    reply(notFoundPacket._raw_data, notFoundPacket._raw_len);
+    free(notFoundPacket._raw_data); // free buff
   }
 }
 

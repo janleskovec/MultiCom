@@ -114,3 +114,18 @@ MultiComPacket MultiComPacket::genGetReply(MultiComPacket request, void *data, u
 
     return MultiComPacket(msg_data, tot_len);
 }
+
+MultiComPacket MultiComPacket::genNotFoundReply(MultiComPacket request) {
+    u16_t tot_len = sizeof(u8_t) + (2*sizeof(u32_t));
+    char *msg_data = (char*) malloc(tot_len);
+    
+    char *tmp = msg_data;
+    *tmp = (char) MultiComPacket::packet_type::not_found;
+    tmp += sizeof(u8_t);
+    *((u32_t*)tmp) = htonl(request.session_id);
+    tmp += sizeof(u32_t);
+    *((u32_t*)tmp) = htonl(request.nonce);
+    tmp += sizeof(u32_t);
+
+    return MultiComPacket(msg_data, tot_len);
+}

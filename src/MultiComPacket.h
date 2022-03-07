@@ -20,7 +20,8 @@ class MultiComPacket {
       get_reply       = 4, // reply msg after get
       send            = 5, // uses sequential nonce (ensures callback only gets called once + order)
       post            = 6, // uses sequential nonce + sends ack (ensures callback only gets called once + order)
-      ack             = 7, // used to reply after post (contains session id and latest nonce)
+      ack             = 7, // used to reply after post (contains session id and nonce)
+      not_found       = 8, // endpoint not found (contains session id and nonce)
     };
 
     MultiComPacket(void *data, u16_t len);
@@ -41,6 +42,7 @@ class MultiComPacket {
     static MultiComPacket genAckPacket(u32_t session_id, u32_t nonce);
     static MultiComPacket genDiscoveryReply(const char *fw_id, const char *dev_id, u32_t api_ver);
     static MultiComPacket genGetReply(MultiComPacket request, void *data, u16_t len);
+    static MultiComPacket genNotFoundReply(MultiComPacket request);
 
     void *_raw_data;
     u16_t _raw_len;
