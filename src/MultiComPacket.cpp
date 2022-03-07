@@ -26,24 +26,32 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
 
         // check len (2x u32_t)
         if (len - parsed_bytes >= 8) {
-            // session id
             if (type != MultiComPacket::packet_type::discovery      &&
                 type != MultiComPacket::packet_type::discovery_helo
                 ) {
+                    // session id
                     session_id = ntohl(*((u32_t *) data));
                     data = static_cast<char*>(data) +  sizeof(u32_t);
                     parsed_bytes += sizeof(u32_t);
-                }
             
-            // nonce
-            if (type != MultiComPacket::packet_type::discovery      &&
-                type != MultiComPacket::packet_type::discovery_helo
-                ) {
+                    // nonce
                     nonce = ntohl(*((u32_t *) data));
                     data = static_cast<char*>(data) +  sizeof(u32_t);
                     parsed_bytes += sizeof(u32_t);
                 }
         }
+
+        // endpoint
+        if (len - parsed_bytes >= 0 &&
+            (type != MultiComPacket::packet_type::get  ||
+             type != MultiComPacket::packet_type::send ||
+             type != MultiComPacket::packet_type::post
+            )) {
+                u16_t e_len = strlen((char *) data)+1;
+                endpoint = (char*) data;
+                data = static_cast<char*>(data) + e_len;
+                parsed_bytes += sizeof(e_len);
+            }
     }
     
     // user data

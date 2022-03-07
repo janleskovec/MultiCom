@@ -58,29 +58,37 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
   switch (packet.type)
   {
   case MultiComPacket::packet_type::get:
-    if (tmp_get_callback != NULL)
-      tmp_get_callback(packet, [packet, reply](void *data, u16_t len){
-        MultiComPacket replyPacket = MultiComPacket::genGetReply(packet, data, len);
-        reply(replyPacket._raw_data, replyPacket._raw_len);
-        free(replyPacket._raw_data); // free buff
-      });
+    {
+      MultiComGetCallback get_callback = _getGetCallback(packet.endpoint);
+      if (get_callback != NULL)
+        get_callback(packet, [packet, reply](void *data, u16_t len){
+          MultiComPacket replyPacket = MultiComPacket::genGetReply(packet, data, len);
+          reply(replyPacket._raw_data, replyPacket._raw_len);
+          free(replyPacket._raw_data); // free buff
+        });
+    }
     break;
   
   case MultiComPacket::packet_type::send:
     if (packet.nonce > session->nonce) {
-      // TODO: for testing only, remove!
-      if (tmp_send_callback != NULL) tmp_send_callback(packet);
-    }
+      // increase nonce
+      session->nonce = packet.nonce;
 
-    // increase nonce
-    if (packet.nonce > session->nonce) session->nonce = packet.nonce;
+      {
+        MultiComSendCallback send_callback = _getSendCallback(packet.endpoint);
+        if (send_callback != NULL) send_callback(packet);
+      }
+    }
 
     break;
   
   case MultiComPacket::packet_type::post:
     if (packet.nonce > session->nonce) {
-      // TODO: for testing only, remove!
-      if (tmp_post_callback != NULL) tmp_post_callback(packet);
+      // increase nonce
+      session->nonce = packet.nonce;
+
+      MultiComPostCallback post_callback = _getPostCallback(packet.endpoint);
+      if (post_callback != NULL) post_callback(packet);
     }
     
     //TODO: test
@@ -88,9 +96,6 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
     MultiComPacket ackPacket = MultiComPacket::genAckPacket(packet.session_id, packet.nonce);
     reply(ackPacket._raw_data, ackPacket._raw_len);
     free(ackPacket._raw_data); // free buff
-
-    // increase nonce
-    if (packet.nonce > session->nonce) session->nonce = packet.nonce;
 
     break;
   }
@@ -158,3 +163,49 @@ void MultiCom::setDiscoveryResponse(const char *fwId, const char *devId, u32_t v
   _discovery_response_len = packet._raw_len;
 }
 
+
+void MultiCom::onGet(const char *name, MultiComGetCallback callback) {
+  MultiComGetEndpoint *endpoint = new MultiComGetEndpoint();
+  endpoint->endpoint = name;
+  endpoint->setCallback(callback);
+  _get_endpoints.push_back(endpoint);
+}
+
+void MultiCom::onSend(const char *name, MultiComSendCallback callback) {
+  MultiComSendEndpoint *endpoint = new MultiComSendEndpoint();
+  endpoint->endpoint = name;
+  endpoint->setCallback(callback);
+  _send_endpoints.push_back(endpoint);
+}
+
+void MultiCom::onPost(const char *name, MultiComPostCallback callback) {
+  MultiComPostEndpoint *endpoint = new MultiComPostEndpoint();
+  endpoint->endpoint = name;
+  endpoint->setCallback(callback);
+  _post_endpoints.push_back(endpoint);
+}
+
+
+MultiComGetCallback MultiCom::_getGetCallback(const char *endpoint) {
+  for (MultiComGetEndpoint *e : _get_endpoints) {
+    if (strcmp(e->endpoint, endpoint) == 0) return e->callback;
+  }
+  // not found
+  return NULL;
+}
+
+MultiComSendCallback MultiCom::_getSendCallback(const char *endpoint) {
+  for (MultiComSendEndpoint *e : _send_endpoints) {
+    if (strcmp(e->endpoint, endpoint) == 0) return e->callback;
+  }
+  // not found
+  return NULL;
+}
+
+MultiComPostCallback MultiCom::_getPostCallback(const char *endpoint){
+  for (MultiComPostEndpoint *e : _post_endpoints) {
+    if (strcmp(e->endpoint, endpoint) == 0) return e->callback;
+  }
+  // not found
+  return NULL;
+}

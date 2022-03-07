@@ -54,14 +54,14 @@ void MultiComUdp::_udp_receive_callback(
                 u16_t port )            // Sender port 
 {
 
-  // TODO: remove or comment-out
-  uint32_t addr4 = addr->u_addr.ip4.addr;
+  // NOTE: for debugging only (adds significant delay)
+  /*uint32_t addr4 = addr->u_addr.ip4.addr;
   Serial.printf("Received %d bytes from: ", p->tot_len);
   Serial.printf("%d",  ( addr4 & 0x000000ff ) >>  0);
   Serial.printf(".%d", ( addr4 & 0x0000ff00 ) >>  8);
   Serial.printf(".%d", ( addr4 & 0x00ff0000 ) >> 16);
   Serial.printf(".%d", ( addr4 & 0xff000000 ) >> 24);
-  Serial.print("\n");
+  Serial.print("\n");*/
 
   using namespace std::placeholders;
   MultiComReplyFn _reply = std::bind(&MultiComUdp::_send, this, addr, ntohs(port), _1, _2);

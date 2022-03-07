@@ -11,6 +11,8 @@ MultiCom api(
     (MultiComChannel *) new MultiComUdp(5021)
 );
 
+int example_val = 0;
+
 void setup() {
     /*
     *   Set firmware id, device id and api version
@@ -40,18 +42,24 @@ void setup() {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    api.tmp_get_callback = [](MultiComPacket packet, MultiComReplyFn reply) {
-        Serial.println("-------------> User get packet callback called!");
+    api.onGet("example", [](MultiComPacket packet, MultiComReplyFn reply) {
+        Serial.println((char*)packet.user_data);
         reply((void*)"yes", 3);
-    };
+    });
 
-    api.tmp_send_callback = [](MultiComPacket packet) {
-        Serial.println("-------------> User send packet callback called!");
-    };
+    api.onGet("getval", [](MultiComPacket packet, MultiComReplyFn reply) {
+        char res_msg[5] = {0};
+        sprintf(res_msg, "%d", example_val);
+        reply((void*)res_msg, strlen(res_msg));
+    });
 
-    api.tmp_post_callback = [](MultiComPacket packet) {
-        Serial.println("-------------> User post packet callback called!");
-    };
+    api.onSend("setval", [](MultiComPacket packet) {
+        example_val = atoi((char*)packet.user_data);
+    });
+
+    api.onPost("setval", [](MultiComPacket packet) {
+        example_val = atoi((char*)packet.user_data);
+    });
 
     if (api.startAll()) {
         Serial.println("Started MultiCom");

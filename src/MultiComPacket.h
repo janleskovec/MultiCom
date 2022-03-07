@@ -31,6 +31,9 @@ class MultiComPacket {
     u32_t session_id;
     u32_t nonce;
 
+    // get, send, post
+    char *endpoint;
+
     // points to _raw_data, where non-header data starts
     void *user_data;
     u16_t user_len;
