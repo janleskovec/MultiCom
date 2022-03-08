@@ -61,7 +61,8 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
 
 
 MultiComPacket MultiComPacket::genAckPacket( u32_t session_id, u32_t nonce) {
-    char *ack_data = (char*) malloc(sizeof(u8_t) + 2*sizeof(u32_t));
+    u16_t len = sizeof(u8_t) + (2*sizeof(u32_t));
+    char *ack_data = (char*) malloc(len);
     
     char *tmp = ack_data;
     *tmp = (char) MultiComPacket::packet_type::ack;
@@ -71,7 +72,7 @@ MultiComPacket MultiComPacket::genAckPacket( u32_t session_id, u32_t nonce) {
     *((u32_t*)tmp) = htonl(nonce);
     tmp += sizeof(u32_t);
     
-    return MultiComPacket(ack_data, (static_cast<char*>(ack_data) - static_cast<char*>(tmp)));
+    return MultiComPacket(ack_data, len);
 }
 
 // \0<fw_id>\0<dev_id>\0<api_ver_int>

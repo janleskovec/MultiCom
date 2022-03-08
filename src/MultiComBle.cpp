@@ -30,9 +30,11 @@ void _ble_callbacks::onWrite(BLECharacteristic *pCharacteristic) {
   std::string rxValue = pCharacteristic->getValue();
 
   if (rxValue.length() > 0) {
+    /*Serial.printf("bytes received: %d\n", rxValue.length());
     for (int i = 0; i < rxValue.length(); i++) {
-      Serial.print(rxValue[i]);
+      Serial.printf("%d ", rxValue[i]);
     }
+    Serial.println("");*/
 
     if (_channel->_callback != NULL)
       _channel->_callback(
@@ -86,6 +88,9 @@ void MultiComBle::stop() {
 
 // TODO: check if same device connected
 void MultiComBle::_send(void *data, u16_t len) {
+  // limit len
+  if (len > 500) len = 500;
+
   _pTxCharacteristic->setValue((u8_t*)data, len);
   _pTxCharacteristic->notify();
 }
