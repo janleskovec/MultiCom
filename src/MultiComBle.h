@@ -1,6 +1,9 @@
 #ifndef multicom_ble_h
 #define multicom_ble_h
 
+// only for esp32 (s2 does not have BT)
+#ifdef CONFIG_IDF_TARGET_ESP32
+
 #include <Arduino.h>
 
 #include <BLEDevice.h>
@@ -47,5 +50,5 @@ class MultiComBle : public MultiComChannel {
     BLECharacteristic * _pTxCharacteristic;
 };
 
-
+#endif
 #endif

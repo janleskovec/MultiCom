@@ -1,3 +1,6 @@
+// only for esp32 (s2 does not have BT)
+#ifdef CONFIG_IDF_TARGET_ESP32
+
 #include <Arduino.h>
 
 #include <BLEDevice.h>
@@ -94,3 +97,5 @@ void MultiComBle::_send(void *data, u16_t len) {
   _pTxCharacteristic->setValue((u8_t*)data, len);
   _pTxCharacteristic->notify();
 }
+
+#endif

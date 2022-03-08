@@ -5,12 +5,18 @@
 
 #include <MultiCom.h>
 #include <MultiComUdp.h>
+// only for esp32 (s2 does not have BT)
+#ifdef CONFIG_IDF_TARGET_ESP32
 #include <MultiComBle.h>
-
+#endif
 
 MultiCom api(
     (MultiComChannel *) new MultiComUdp(5021),
+#ifdef CONFIG_IDF_TARGET_ESP32
     (MultiComChannel *) new MultiComBle("MultiCom BLE")
+#else
+    NULL
+#endif
 );
 
 int example_val = 0;
