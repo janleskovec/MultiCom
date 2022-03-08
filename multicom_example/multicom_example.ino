@@ -5,10 +5,12 @@
 
 #include <MultiCom.h>
 #include <MultiComUdp.h>
+#include <MultiComBle.h>
 
 
 MultiCom api(
-    (MultiComChannel *) new MultiComUdp(5021)
+    (MultiComChannel *) new MultiComUdp(5021),
+    (MultiComChannel *) new MultiComBle("MultiCom BLE")
 );
 
 int example_val = 0;

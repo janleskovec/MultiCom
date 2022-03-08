@@ -21,29 +21,26 @@ void MultiComChannel::stop() {
 }
 
 
-MultiCom::MultiCom(MultiComChannel *udp) {
+MultiCom::MultiCom(MultiComChannel *udp, MultiComChannel *ble) {
 
   using namespace std::placeholders;
   MultiComNewDataFn _callback = std::bind(&MultiCom::_onNewMsg, this, _1, _2, _3);
 
   channelUdp = udp;
-  channelUdp->_callback = _callback;
-  //channelBle = ble;
-  //channelBle->_callback = _callback;
-
-  // init sessions list
-  //_session_list = {};
+  if (channelUdp != NULL) channelUdp->_callback = _callback;
+  channelBle = ble;
+  if (channelBle != NULL) channelBle->_callback = _callback;
 }
 
 bool MultiCom::startAll() {
   bool success = true;
 
   if (channelUdp != NULL) success &= channelUdp->start();
-  // if (channelBle != NULL) success &= channelBle->start();
+  if (channelBle != NULL) success &= channelBle->start();
 
   if (!success) {
     channelUdp->stop();
-    //channelBle->stop();
+    channelBle->stop();
   }
 
   return success;

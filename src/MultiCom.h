@@ -69,12 +69,12 @@ class MultiComPostEndpoint {
 class MultiCom {
 
   public:
-    MultiCom(MultiComChannel *udp);
+    MultiCom(MultiComChannel *udp, MultiComChannel *ble);
     
     bool startAll();
 
     MultiComChannel *channelUdp;
-    //MultiComChannel *channelBle;
+    MultiComChannel *channelBle;
 
     void setDiscoveryResponse(const char *fwId, const char *devId, u32_t ver);
 
