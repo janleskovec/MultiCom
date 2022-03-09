@@ -1,3 +1,6 @@
+#include "MultiCom.h"
+#include "MultiComBle.h"
+
 // only for esp32 (s2 does not have BT)
 #ifdef CONFIG_IDF_TARGET_ESP32
 
@@ -7,9 +10,6 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
-
-#include "MultiCom.h"
-#include "MultiComBle.h"
 
 #define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
 #define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
