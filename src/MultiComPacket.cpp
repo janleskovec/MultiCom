@@ -50,7 +50,7 @@ MultiComPacket::MultiComPacket(void *data, u16_t len) {
                 u16_t e_len = strlen((char *) data)+1;
                 endpoint = (char*) data;
                 data = static_cast<char*>(data) + e_len;
-                parsed_bytes += sizeof(e_len);
+                parsed_bytes += e_len;
             }
     }
     

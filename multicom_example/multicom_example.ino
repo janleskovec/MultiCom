@@ -3,9 +3,6 @@
 
 #include "wifi_config.h"
 
-// enables some debug output
-#define DEBUG
-
 #include <MultiCom.h>
 #include <MultiComUdp.h>
 // only for esp32 (s2 does not have BT)
