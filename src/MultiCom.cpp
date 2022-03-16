@@ -50,7 +50,9 @@ void MultiCom::_endpointRouter(MultiComPacket packet, MultiComReplyFn reply) {
 
   MultiCom::session *session = _getSession(packet.session_id);
 
+#ifdef DEBUG
   Serial.printf("packet_nonce=%u, session_nonce=%u\n", packet.nonce, session->nonce);
+#endif
 
   bool not_found = false;
 
