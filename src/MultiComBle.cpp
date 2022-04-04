@@ -59,21 +59,24 @@ bool MultiComBle::start() {
 
   Serial.println("start ble server");
 
-  BLEDevice::init(_bt_name);
-  _pServer = BLEDevice::createServer();
-  _pServer->setCallbacks(new _ble_server_callbacks(this));
-  BLEService *pService = _pServer->createService(SERVICE_UUID);
-  _pTxCharacteristic = pService->createCharacteristic(
-										CHARACTERISTIC_UUID_TX,
-										BLECharacteristic::PROPERTY_NOTIFY
-									);      
-  _pTxCharacteristic->addDescriptor(new BLE2902());
-  BLECharacteristic * pRxCharacteristic = pService->createCharacteristic(
-											 CHARACTERISTIC_UUID_RX,
-											BLECharacteristic::PROPERTY_WRITE
-										);
-  pRxCharacteristic->setCallbacks(new _ble_callbacks(this));
-  pService->start();
+  if (!_initDone) {
+    BLEDevice::init(_bt_name);
+    _pServer = BLEDevice::createServer();
+    _pServer->setCallbacks(new _ble_server_callbacks(this));
+    _uartService = _pServer->createService(SERVICE_UUID);
+    _pTxCharacteristic = _uartService->createCharacteristic(
+                      CHARACTERISTIC_UUID_TX,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );      
+    _pTxCharacteristic->addDescriptor(new BLE2902());
+    BLECharacteristic * pRxCharacteristic = _uartService->createCharacteristic(
+                        CHARACTERISTIC_UUID_RX,
+                        BLECharacteristic::PROPERTY_WRITE
+                      );
+    pRxCharacteristic->setCallbacks(new _ble_callbacks(this));
+    _initDone = true;
+  }
+  _uartService->start();
   _pServer->getAdvertising()->start();
 
   isRunning = success;
@@ -85,7 +88,8 @@ void MultiComBle::stop() {
   isRunning = false;
   Serial.println("stop ble server");
 
-  // TODO: implement
+  _uartService->stop();
+  _pServer->getAdvertising()->stop();
 }
 
 
