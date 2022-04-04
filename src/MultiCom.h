@@ -22,7 +22,7 @@ class MultiComChannel {
   public:
     virtual bool start();
     virtual void stop();
-    bool isRunning;
+    bool isRunning = false;
 
     // is set by MultiCom
     MultiComNewDataFn _callback;
