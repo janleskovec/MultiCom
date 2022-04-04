@@ -46,6 +46,9 @@ class MultiComBle : public MultiComChannel {
     const char* _bt_name;
     bool _connected;
 
+    bool _initDone = false;
+    BLEService *_uartService;
+
     BLEServer *_pServer = NULL;
     BLECharacteristic * _pTxCharacteristic;
 };
