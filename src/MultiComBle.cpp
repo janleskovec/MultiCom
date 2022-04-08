@@ -60,6 +60,7 @@ bool MultiComBle::start() {
   Serial.println("start ble server");
 
   if (!_initDone) {
+    _initDone = true;
     BLEDevice::init(_bt_name);
     _pServer = BLEDevice::createServer();
     _pServer->setCallbacks(new _ble_server_callbacks(this));
@@ -74,7 +75,6 @@ bool MultiComBle::start() {
                         BLECharacteristic::PROPERTY_WRITE
                       );
     pRxCharacteristic->setCallbacks(new _ble_callbacks(this));
-    _initDone = true;
   }
   _uartService->start();
   _pServer->getAdvertising()->start();
@@ -88,8 +88,12 @@ void MultiComBle::stop() {
   isRunning = false;
   Serial.println("stop ble server");
 
-  _uartService->stop();
-  _pServer->getAdvertising()->stop();
+  if (_initDone) {
+    _initDone = false;
+    BLEDevice::deinit();
+    _uartService->stop();
+    _pServer->getAdvertising()->stop();
+  }
 }
 
 
