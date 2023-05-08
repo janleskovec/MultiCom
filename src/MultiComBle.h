@@ -47,6 +47,7 @@ class MultiComBle : public MultiComChannel {
     bool _connected;
 
     bool _initDone = false;
+    bool _running = false;
     BLEService *_uartService;
 
     BLEServer *_pServer = NULL;
