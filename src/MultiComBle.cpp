@@ -65,18 +65,21 @@ bool MultiComBle::start() {
     // init callbacks..
     BLEDevice::init(_bt_name);
     _pServer = BLEDevice::createServer();
+    _blesc = new _ble_server_callbacks(this);
     _pServer->setCallbacks(new _ble_server_callbacks(this));
     _uartService = _pServer->createService(SERVICE_UUID);
     _pTxCharacteristic = _uartService->createCharacteristic(
                       CHARACTERISTIC_UUID_TX,
                       BLECharacteristic::PROPERTY_NOTIFY
-                    );      
-    _pTxCharacteristic->addDescriptor(new BLE2902());
-    BLECharacteristic * pRxCharacteristic = _uartService->createCharacteristic(
+                    );
+    _ble2902 = new BLE2902();
+    _pTxCharacteristic->addDescriptor(_ble2902);
+    _pRxCharacteristic = _uartService->createCharacteristic(
                         CHARACTERISTIC_UUID_RX,
                         BLECharacteristic::PROPERTY_WRITE
                       );
-    pRxCharacteristic->setCallbacks(new _ble_callbacks(this));
+    _blec = new _ble_callbacks(this);
+    _pRxCharacteristic->setCallbacks(_blec);
   }
 
   // start
@@ -95,11 +98,19 @@ void MultiComBle::stop() {
   Serial.println("stop ble server");
 
   if (_initDone) {
-    //_initDone = false;
-    //BLEDevice::deinit();
-
     _uartService->stop();
     _pServer->getAdvertising()->stop();
+    
+    _initDone = false;
+    BLEDevice::deinit();
+
+    delete _pServer;
+    delete _uartService;
+    delete _pTxCharacteristic;
+    delete _pRxCharacteristic;
+    delete _ble2902;
+    delete _blesc;
+    delete _blec;
   }
 }
 

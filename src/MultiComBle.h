@@ -52,6 +52,10 @@ class MultiComBle : public MultiComChannel {
 
     BLEServer *_pServer = NULL;
     BLECharacteristic * _pTxCharacteristic;
+    BLECharacteristic * _pRxCharacteristic;
+    BLE2902 * _ble2902;
+    _ble_server_callbacks * _blesc;
+    _ble_callbacks * _blec;
 };
 
 #endif
